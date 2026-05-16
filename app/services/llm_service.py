@@ -9,27 +9,44 @@ from dotenv import load_dotenv
 import os
 
 
+# -----------------------------------
 # LOAD ENV VARIABLES
+# -----------------------------------
+
 load_dotenv()
 
+
+# -----------------------------------
 # CONFIGURE GROQ CLIENT
+# -----------------------------------
+
 client = Groq(
     api_key=os.getenv("GROQ_API_KEY")
 )
 
+
+# -----------------------------------
 # LOAD EMBEDDING MODEL
+# -----------------------------------
+
 embedding_model = SentenceTransformer(
     "all-MiniLM-L6-v2"
 )
 
 
+# -----------------------------------
 # LOAD FAISS INDEX
+# -----------------------------------
+
 index = faiss.read_index(
     "app/data/faiss_index/shl_index.faiss"
 )
 
 
+# -----------------------------------
 # LOAD METADATA
+# -----------------------------------
+
 with open(
     "app/data/faiss_index/metadata.pkl",
     "rb"
@@ -38,92 +55,186 @@ with open(
     metadata = pickle.load(f)
 
 
-def retrieve_assessments(query, top_k=5):
+# -----------------------------------
+# BUILD CONCISE CONTEXT
+# -----------------------------------
 
-    query_embedding = embedding_model.encode([query])
+def build_concise_context(results):
 
-    distances, indices = index.search(
-        np.array(query_embedding),
-        top_k
-    )
+    concise_context = ""
 
-    results = []
+    for item in results[:3]:
 
-    for idx in indices[0]:
-
-        results.append(metadata[idx])
-
-    return results
-
-
-def build_context(results):
-
-    context = ""
-
-    for result in results:
-
-        context += f"""
-        Title: {result.get('title', '')}
+        concise_context += f"""
+        Assessment Name: {item.get('title', '')}
 
         Description:
-        {result.get('description', '')}
+        {item.get('description', '')}
 
         Job Levels:
-        {result.get('job_levels', '')}
+        {item.get('job_levels', '')}
 
-        Assessment Length:
-        {result.get('assessment_length', '')} minutes
+        Duration:
+        {item.get('assessment_length', '')} minutes
 
-        URL:
-        {result.get('url', '')}
-
-        --------------------------------
+        -------------------------
         """
 
-    return context
+    return concise_context
 
 
-def generate_response(query):
+# -----------------------------------
+# GENERATE RECOMMENDATION RESPONSE
+# -----------------------------------
 
-    retrieved_results = retrieve_assessments(query)
+def generate_response(
+    query,
+    retrieved_results
+):
 
-    context = build_context(retrieved_results)
+    concise_context = build_concise_context(
+        retrieved_results
+    )
 
     prompt = f"""
-    You are an AI assistant helping recruiters
-    recommend SHL assessments.
+You are an SHL assessment recommendation assistant.
 
-    Recruiter Query:
-    {query}
+Your job:
+- recommend suitable SHL assessments,
+- explain WHY the assessments fit the role,
+- sound natural and recruiter-friendly,
+- avoid robotic responses,
+- use line breaks between ideas,
+- avoid dense paragraphs
+- avoid simply listing assessment names,
+- focus on hiring relevance and evaluation areas,
+- keep responses concise,
+- maximum 2 short paragraphs,
+- never invent assessments,
+- only use the retrieved assessments provided below.
 
-    Available Assessments:
-    {context}
+IMPORTANT:
+The recommendation cards shown separately already contain:
+- titles
+- durations
+- links
+- PDFs
 
-    Instructions:
-    - Recommend the most relevant assessments
-    - Explain WHY each assessment matches
-    - Keep response professional and concise
-    """
+So your response should focus on:
+- reasoning,
+- hiring context,
+- evaluation usefulness,
+- recruiter guidance.
 
+User Query:
+{query}
+
+Retrieved Assessments:
+{concise_context}
+"""
 
     response = client.chat.completions.create(
-    model="llama-3.1-8b-instant",
-    messages=[
-        {
-            "role": "user",
-            "content": prompt
-        }
-    ]
+        model="llama-3.1-8b-instant",
+
+        temperature=0.5,
+
+        messages=[
+            {
+                "role": "user",
+                "content": prompt
+            }
+        ]
     )
 
     return response.choices[0].message.content
 
 
-# TEST
-# query = input("Enter recruiter query: ")
+# -----------------------------------
+# GENERATE COMPARISON RESPONSE
+# -----------------------------------
 
-# answer = generate_response(query)
+def generate_comparison_response(
+    first,
+    second
+):
 
-# print("\nAI RESPONSE:\n")
+    prompt = f"""
+You are an SHL assessment comparison assistant.
 
-# print(answer)
+Your job:
+- compare the assessments clearly,
+- explain differences in hiring usage,
+- explain which situations each assessment fits best,
+- avoid repeating metadata verbatim,
+- sound conversational and recruiter-friendly,
+- use headings and bullets,
+- keep responses concise,
+- never invent assessments,
+- only use the information provided.
+
+IMPORTANT:
+Comparison cards shown separately already contain:
+- titles
+- durations
+- job levels
+- links
+- languages
+
+So focus mainly on:
+- hiring differences,
+- evaluation depth,
+- recruiter decision-making,
+- practical usage context,
+- relative strengths and ideal use cases.
+
+Output format:
+- start with a short summary sentence,
+- then provide 2-3 bullet points for each assessment,
+- include 1 bullet describing their main difference.
+
+Assessment 1:
+Title: {first.get('title', '')}
+
+Description:
+{first.get('description', '')}
+
+Job Levels:
+{first.get('job_levels', '')}
+
+Languages:
+{first.get('languages', '')}
+
+Duration:
+{first.get('assessment_length', '')}
+
+
+Assessment 2:
+Title: {second.get('title', '')}
+
+Description:
+{second.get('description', '')}
+
+Job Levels:
+{second.get('job_levels', '')}
+
+Languages:
+{second.get('languages', '')}
+
+Duration:
+{second.get('assessment_length', '')}
+"""
+
+    response = client.chat.completions.create(
+        model="llama-3.1-8b-instant",
+
+        temperature=0.5,
+
+        messages=[
+            {
+                "role": "user",
+                "content": prompt
+            }
+        ]
+    )
+
+    return response.choices[0].message.content

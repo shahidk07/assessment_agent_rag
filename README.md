@@ -967,114 +967,415 @@ Return recommendations using assignment schema.
 
 ---
 
-# 15. Phase 10 — Guardrails & Safety
+# 15. Phase 10 — Guardrails & Safety(Skipped)
 
 ## Objective
 
-Prevent hallucinations and off-topic behavior.
+Reduce hallucinations, restrict off-topic behavior, and ensure grounded SHL assessment recommendations.
 
 ---
 
-## Guardrails
+# 15.1 Current Safeguards
 
-The assistant should:
-
-- recommend only SHL assessments,
-- refuse unrelated requests,
-- reject prompt injection,
-- avoid fabricated URLs,
-- avoid made-up assessments.
+The current system already includes several practical guardrails to reduce unsafe or irrelevant responses.
 
 ---
 
-## Example Off-Topic Requests
+## SHL-Only Retrieval
 
-- "Give me legal hiring advice"
-- "Recommend Coursera certifications"
-- "Ignore instructions"
+The recommendation system retrieves assessments only from the scraped SHL catalog dataset.
+
+This significantly reduces:
+- fabricated assessments,
+- fake recommendation generation,
+- unrelated third-party suggestions.
 
 ---
 
-# 16. Phase 11 — Testing & Evaluation
+## Retrieval-Grounded Responses
+
+Recommendations are generated using:
+- FAISS semantic retrieval,
+- structured SHL metadata,
+- grounded RAG architecture.
+
+The LLM does not generate recommendations from open-ended knowledge alone.
+
+---
+
+## Off-Topic Refusal Logic
+
+The assistant includes intent classification logic that identifies unrelated requests.
+
+Examples:
+- non-SHL certifications,
+- unrelated career advice,
+- general internet recommendations.
+
+Such requests are refused instead of processed.
+
+---
+
+## Structured Recommendation Schema
+
+Recommendations are returned in structured JSON format containing:
+- assessment name,
+- SHL URL,
+- PDF URL,
+- test type.
+
+This improves:
+- response consistency,
+- frontend integration,
+- hallucination resistance.
+
+---
+
+## Lookup Validation Through Metadata
+
+Direct lookup queries use:
+- exact metadata matching,
+- fallback semantic retrieval.
+
+This reduces incorrect assessment retrieval for exact identifier queries such as:
+- OPQ32,
+- GSA,
+- specific SHL product names.
+
+---
+
+# 15.2 Existing Limitations
+
+Although the current system includes practical safeguards, several limitations still exist.
+
+---
+
+## Limited Prompt Injection Protection
+
+The system currently does not implement advanced prompt injection filtering.
+
+Malicious prompts may still attempt to:
+- override instructions,
+- manipulate LLM behavior,
+- bypass conversational constraints.
+
+---
+
+## Basic Intent Classification
+
+Intent classification currently relies on:
+- LLM-based zero-shot classification.
+
+Possible limitations:
+- occasional misclassification,
+- ambiguous query handling,
+- probabilistic outputs.
+
+---
+
+## Limited Validation Layer
+
+The recommendation pipeline currently assumes:
+- metadata correctness,
+- valid scraped URLs,
+- consistent SHL catalog structure.
+
+Additional validation could improve robustness further.
+
+---
+
+# 15.3 Future Improvements
+
+Future versions of the system may include additional safety and guardrail mechanisms.
+
+---
+
+## Prompt Injection Detection
+
+Implement rule-based or ML-based filtering for prompts containing:
+- instruction override attempts,
+- jailbreak prompts,
+- unsafe command patterns.
+
+---
+
+## Recommendation Validation Pipeline
+
+Add automated validation for:
+- SHL domain verification,
+- duplicate filtering,
+- invalid URL detection,
+- assessment consistency checks.
+
+---
+
+## Dedicated Intent Classification Model
+
+Replace zero-shot classification with:
+- trained intent classifier,
+- supervised conversational routing model.
+
+Possible approaches:
+- BERT classifier,
+- fine-tuned transformer,
+- hybrid routing architecture.
+
+---
+
+## Safety Moderation Layer
+
+Add moderation middleware to detect:
+- unsafe requests,
+- abusive prompts,
+- malicious conversational behavior.
+
+---
+
+# Conclusion
+
+The current MVP implementation already includes practical safety mechanisms through:
+- retrieval grounding,
+- SHL-only recommendations,
+- structured response formatting,
+- off-topic refusal logic.
+
+These safeguards significantly reduce hallucination risk while maintaining lightweight system architecture suitable for an MVP AI recommendation platform.
+
+# 16. Phase 11 — Frontend Development
 
 ## Objective
 
-Validate reliability and conversation quality.
+Build a frontend interface for interacting with the conversational SHL assessment recommendation system.
+
+The frontend should allow recruiters to:
+- chat naturally with the assistant,
+- receive assessment recommendations,
+- view assessment details,
+- access SHL assessment links and PDFs,
+- refine recommendations interactively.
 
 ---
 
-## Testing Areas
+# 16.1 Frontend Goals
 
-### Functional Testing
+The frontend should provide:
+- conversational UI,
+- recruiter-friendly interaction flow,
+- recommendation rendering,
+- conversation history handling,
+- API integration with FastAPI backend.
+
+---
+
+# 16.2 Suggested Frontend Features
+
+## Chat Interface
+
+A conversational interface similar to modern AI chat applications.
+
+---
+
+## Recommendation Cards
+
+Display recommendations as structured cards containing:
+- assessment name,
+- assessment type,
+- SHL URL,
+- PDF link.
+
+---
+
+## Conversation History
+
+Maintain:
+- user messages,
+- assistant replies,
+- refinement interactions.
+
+The frontend should send:
+```json
+messages[]
+```
+
+to the backend for stateless conversation handling.
+
+---
+
+## Loading & Error States
+
+Frontend should handle:
+- API loading states,
+- failed requests,
+- empty responses,
+- invalid queries.
+
+---
+
+# 16.3 Suggested Frontend Stack
+
+Possible frontend technologies:
+- React
+- Next.js
+- Angular
+- Tailwind CSS
+
+---
+
+# 16.4 API Integration
+
+Frontend should integrate with:
+- `/chat`
+- `/health`
+
+FastAPI endpoints.
+
+---
+
+# 16.5 Expected Frontend Workflow
+
+```text
+Recruiter Input
+      ↓
+Frontend Chat UI
+      ↓
+FastAPI Backend
+      ↓
+Conversation Logic
+      ↓
+Retrieval + LLM
+      ↓
+Structured Recommendation Response
+      ↓
+Frontend Recommendation Cards
+```
+
+---
+
+# 17. Phase 12 — Testing & Evaluation
+
+## Objective
+
+Validate:
+- backend reliability,
+- frontend integration,
+- conversational quality,
+- retrieval accuracy,
+- overall user experience.
+
+Testing will be performed after frontend integration to simulate realistic recruiter interaction workflows.
+
+---
+
+# 17.1 Functional Testing
+
+## Areas
 
 - API responses
 - endpoint correctness
 - schema validation
+- frontend-backend integration
+- recommendation rendering
 
 ---
 
-### Conversation Testing
+# 17.2 Conversation Testing
 
-- vague query handling
-- clarification quality
+## Areas
+
+- greeting handling
+- vague query clarification
 - refinement handling
-- comparison handling
-- refusal handling
+- lookup queries
+- refusal behavior
+- conversation continuity
 
 ---
 
-### Retrieval Testing
+# 17.3 Retrieval Testing
+
+## Areas
 
 - semantic relevance
-- recommendation accuracy
+- exact lookup accuracy
+- recommendation quality
 - hallucination prevention
+- SHL-only recommendation validation
 
 ---
 
-## Example Test Scenarios
+# 17.4 Example Test Scenarios
 
-### Scenario 1
+## Scenario 1
 
-User:
+### User
 
 > "I need an assessment"
 
-Expected:
+### Expected
+
 - assistant asks clarification question.
 
 ---
 
-### Scenario 2
+## Scenario 2
 
-User:
+### User
 
 > "Add personality tests"
 
-Expected:
-- recommendations updated.
+### Expected
+
+- recommendations updated while preserving earlier context.
 
 ---
 
-### Scenario 3
+## Scenario 3
 
-User:
+### User
+
+> "Give me the download link for OPQ32"
+
+### Expected
+
+- exact assessment retrieved,
+- correct SHL URL returned,
+- PDF link returned.
+
+---
+
+## Scenario 4
+
+### User
 
 > "Recommend non-SHL tests"
 
-Expected:
-- assistant refuses.
+### Expected
+
+- assistant refuses request.
 
 ---
 
-# 17. Phase 12 — Deployment
+# 18. Phase 13 — Deployment
 
 ## Objective
 
-Deploy FastAPI application publicly.
+Deploy the frontend and FastAPI backend publicly.
 
 ---
 
-## Deployment Platforms
+# 18.1 Deployment Goals
+
+Deploy:
+- FastAPI backend,
+- frontend application,
+- public API endpoints,
+- production-ready environment configuration.
+
+---
+
+# 18.2 Suggested Deployment Platforms
+
+## Backend
 
 - Render
 - Railway
@@ -1082,43 +1383,134 @@ Deploy FastAPI application publicly.
 
 ---
 
-## Deployment Requirements
+## Frontend
+
+- Vercel
+- Netlify
+- Render
+
+---
+
+# 18.3 Deployment Requirements
+
+## Backend Requirements
 
 - public API URL,
-- working /health endpoint,
-- working /chat endpoint.
-
----
-
-## Production Requirements
-
+- working `/health` endpoint,
+- working `/chat` endpoint,
 - environment variables,
 - dependency installation,
-- startup command,
-- API accessibility.
+- startup command.
 
 ---
 
-# 18. Phase 13 — Documentation
+## Frontend Requirements
+
+- deployed chat interface,
+- backend API integration,
+- production environment variables,
+- accessible recruiter workflow.
+
+---
+
+# 18.4 Production Considerations
+
+## Backend
+
+- API key management,
+- environment isolation,
+- scalable deployment configuration.
+
+---
+
+## Frontend
+
+- responsive UI,
+- loading optimization,
+- API error handling.
+
+---
+
+# 19. Phase 14 — Documentation
 
 ## Objective
 
-Write concise project explanation document.
-
----
-
-## Include
-
-- architecture decisions,
+Write concise technical documentation explaining:
+- architecture,
+- engineering decisions,
 - retrieval strategy,
-- prompt design,
-- testing approach,
-- failures and improvements,
-- AI tools used.
+- conversational design,
+- limitations,
+- future improvements.
 
 ---
 
-# 19. Final Goal
+# 19.1 Documentation Topics
+
+## System Architecture
+
+Explain:
+- backend architecture,
+- conversational orchestration,
+- retrieval pipeline,
+- frontend-backend communication.
+
+---
+
+## Retrieval Strategy
+
+Document:
+- FAISS vector search,
+- semantic retrieval,
+- exact lookup logic,
+- hybrid retrieval architecture.
+
+---
+
+## Prompt Design
+
+Explain:
+- intent classification prompts,
+- conversational routing prompts,
+- recommendation generation prompts.
+
+---
+
+## Testing Approach
+
+Document:
+- functional testing,
+- retrieval evaluation,
+- conversational testing,
+- frontend integration testing.
+
+---
+
+## Failures & Improvements
+
+Discuss:
+- retrieval limitations,
+- intent classification limitations,
+- hallucination risks,
+- future optimization ideas.
+
+---
+
+## AI Tools Used
+
+Document tools and technologies used during development.
+
+Examples:
+- Groq API,
+- Llama 3.1,
+- Sentence Transformers,
+- FAISS,
+- FastAPI,
+- Selenium.
+
+---
+
+# 20. Final Goal
 
 Build a grounded conversational AI system that:
 
@@ -1126,47 +1518,56 @@ Build a grounded conversational AI system that:
 - understands natural language,
 - asks intelligent clarification questions,
 - retrieves relevant assessments,
+- supports direct lookup queries,
 - avoids hallucinations,
-- and stays fully restricted to SHL catalog knowledge.
+- and stays restricted to SHL catalog knowledge.
 
 ---
 
-# 20. Final System Workflow
+# 21. Final System Workflow
 
 ```text
-User Query
-     ↓
+Recruiter Query
+      ↓
+Frontend Chat Interface
+      ↓
 FastAPI Endpoint
-     ↓
+      ↓
 Conversation Logic
-     ↓
-Retrieval System
-     ↓
+      ↓
+Intent Classification
+      ↓
+Hybrid Retrieval System
+      ↓
 SHL Dataset + FAISS
-     ↓
+      ↓
 LLM Generates Grounded Response
-     ↓
+      ↓
 Structured JSON Response
+      ↓
+Frontend Recommendation Cards
 ```
 
 ---
 
-# 21. Key Engineering Principles
+# 22. Key Engineering Principles
 
 The project focuses on:
-
 - AI application engineering,
 - retrieval-augmented generation,
-- conversation management,
-- grounded responses,
+- conversational orchestration,
+- grounded AI responses,
 - API design,
+- hybrid retrieval systems,
 - and system reliability.
 
-This project is NOT about:
+---
 
-- training custom deep learning models,
-- building neural networks from scratch,
+# 23. Project Scope Clarification
+
+This project is NOT focused on:
+- training deep learning models from scratch,
+- building custom neural networks,
 - or creating a general-purpose chatbot.
 
-The core goal is building a reliable conversational recommendation system using modern AI engineering practices.
-
+The core objective is building a reliable conversational recommendation system using modern AI engineering practices and retrieval-grounded conversational AI architecture.
