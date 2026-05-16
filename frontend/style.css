@@ -1,0 +1,28 @@
+body {
+    font-family: Arial, sans-serif;
+  }
+  
+  .user-message {
+    background-color: black;
+    color: white;
+    padding: 12px 16px;
+    border-radius: 16px;
+    max-width: 70%;
+  }
+  
+  .bot-message {
+    background-color: white;
+    border: 1px solid #d1d5db;
+    color: black;
+    padding: 12px 16px;
+    border-radius: 16px;
+    max-width: 70%;
+  }
+  
+  .recommendation-card {
+    background-color: white;
+    border: 1px solid #e5e7eb;
+    padding: 16px;
+    border-radius: 16px;
+    margin-top: 12px;
+  }
