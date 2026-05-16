@@ -9,11 +9,15 @@ from app.services.recommendation_service import (
 router = APIRouter()
 
 
-class ChatRequest(BaseModel):
-    query: str
+class Message(BaseModel):
+    role: str
+    content: str
 
+
+class ChatRequest(BaseModel):
+    messages: list[Message]
 
 @router.post("/chat")
 def chat(request: ChatRequest):
 
-    return process_query(request.query)
+    return process_query(request.messages)

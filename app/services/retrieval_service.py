@@ -26,10 +26,10 @@ with open(
     metadata = pickle.load(f)
 
 
-def retrieve_assessments(query, top_k=5):
+def retrieve_assessments(conversation_context, top_k=5):
 
     # convert query into embedding
-    query_embedding = model.encode([query])
+    query_embedding = model.encode([conversation_context])
 
     # search faiss
     distances, indices = index.search(

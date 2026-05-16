@@ -12,7 +12,7 @@ from app.services.retrieval_service import (
 # INTENT CLASSIFICATION
 # -----------------------------
 
-def classify_query(query):
+def classify_query(latest_query):
 
     prompt = f"""
     You are an intent classification system.
@@ -46,7 +46,7 @@ def classify_query(query):
     Return ONLY the category name.
 
     User Query:
-    {query}
+    {latest_query}
     """
 
     response = client.chat.completions.create(
@@ -135,11 +135,13 @@ def comparison_response():
 # RECOMMENDATION RESPONSE
 # -----------------------------
 
-def recommendation_response(query):
+def recommendation_response(conversation_context):
 
-    retrieved_results = retrieve_assessments(query)
+    retrieved_results = retrieve_assessments(
+    conversation_context)
 
-    llm_reply = generate_response(query)
+    llm_reply = generate_response(
+        conversation_context)
 
     recommendations = []
 
@@ -163,39 +165,46 @@ def recommendation_response(query):
 # -----------------------------
 # MAIN CONVERSATION CONTROLLER
 # -----------------------------
+def process_query(messages):
 
-def process_query(query):
+    latest_query = messages[-1].content
 
-    intent = classify_query(query)
+    user_messages = []
+
+    for msg in messages:
+
+        if msg.role == "user":
+
+            user_messages.append(msg.content)
+
+    conversation_context = " ".join(user_messages)
+
+    intent = classify_query(latest_query)
 
     print(f"Detected Intent: {intent}")
 
-    # GREETING
     if intent == "greeting":
 
         return greeting_response()
 
-    # VAGUE QUERY
     elif intent == "vague":
 
         return clarification_response()
 
-    # OFF TOPIC
     elif intent == "off-topic":
 
         return refusal_response()
 
-    # COMPARISON
     elif intent == "comparison":
 
         return comparison_response()
 
-    # RECOMMENDATION
     elif intent == "recommendation":
 
-        return recommendation_response(query)
+        return recommendation_response(
+            conversation_context
+        )
 
-    # FALLBACK
     else:
 
         return {
