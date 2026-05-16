@@ -3,10 +3,17 @@ from app.services.llm_service import (
     client
 )
 
+import pickle
 from app.services.retrieval_service import (
     retrieve_assessments
 )
 
+with open(
+    "app/data/faiss_index/metadata.pkl",
+    "rb"
+) as f:
+
+    metadata = pickle.load(f)
 
 # -----------------------------
 # INTENT CLASSIFICATION
@@ -20,6 +27,7 @@ def classify_query(latest_query):
     Classify the user query into ONLY ONE category.
 
     Categories:
+    - lookup
     - greeting
     - vague
     - recommendation
@@ -27,10 +35,17 @@ def classify_query(latest_query):
     - off-topic
 
     Rules:
-
+    
     greeting:
     greetings like hi, hello, hey, good morning
-
+    
+    
+    lookup:
+    requests asking for:
+    - assessment link
+    - download link
+    - PDF
+    - exact assessment lookup
     vague:
     hiring-related but lacks enough details
 
@@ -129,7 +144,65 @@ def comparison_response():
         "recommendations": [],
         "end_of_conversation": False
     }
+    
+    
+# ----------------------------------------
+# LOOKUP RESPONSE
+# ----------------------------------------
+# Handles direct assessment lookup queries.
+# First tries exact title matching.
+# Falls back to semantic FAISS retrieval
+# if no exact match is found.
+# ----------------------------------------
+def lookup_response(conversation_context):
 
+    query_lower = conversation_context.lower()
+
+    exact_matches = []
+
+    # -------------------------
+    # EXACT TITLE MATCHING
+    # -------------------------
+
+    for item in metadata:
+
+        title = item.get("title", "").lower()
+
+        if title and title in query_lower:
+
+            exact_matches.append(item)
+
+    # -------------------------
+    # FALLBACK TO FAISS
+    # -------------------------
+
+    if len(exact_matches) == 0:
+
+        exact_matches = retrieve_assessments(
+            conversation_context,
+            top_k=3
+        )
+
+    recommendations = []
+
+    for result in exact_matches[:10]:
+
+        recommendation = {
+            "name": result.get("title", ""),
+            "url": result.get("url", ""),
+            "pdf_url": result.get("pdf_url", ""),
+            "test_type": "Unknown"
+        }
+
+        recommendations.append(recommendation)
+
+    return {
+        "reply": (
+            "Here are the requested assessment links."
+        ),
+        "recommendations": recommendations,
+        "end_of_conversation": True
+    }
 
 # -----------------------------
 # RECOMMENDATION RESPONSE
@@ -148,10 +221,11 @@ def recommendation_response(conversation_context):
     for result in retrieved_results[:10]:
 
         recommendation = {
-            "name": result.get("title", ""),
-            "url": result.get("url", ""),
-            "test_type": "Unknown"
-        }
+    "name": result.get("title", ""),
+    "url": result.get("url", ""),
+    "pdf_url": result.get("pdf_url", ""),
+    "test_type": "Unknown"
+}
 
         recommendations.append(recommendation)
 
@@ -198,12 +272,18 @@ def process_query(messages):
     elif intent == "comparison":
 
         return comparison_response()
-
+    
+    elif intent == "lookup":
+        return lookup_response(
+        conversation_context
+    )
+        
     elif intent == "recommendation":
 
         return recommendation_response(
             conversation_context
         )
+
 
     else:
 
