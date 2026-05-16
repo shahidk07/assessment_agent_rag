@@ -46,24 +46,24 @@ def retrieve_assessments(query, top_k=5):
     return results
 
 
-# TEST QUERY
-query = input("Enter recruiter query: ")
+# # TEST QUERY
+# query = "Leadership assessments for managers"
 
 
-results = retrieve_assessments(query)
+# results = retrieve_assessments(query)
 
 
-print("\nTop Matching Assessments:\n")
+# print("\nTop Matching Assessments:\n")
 
 
-for i, result in enumerate(results, start=1):
+# for i, result in enumerate(results, start=1):
 
-    print(f"{i}. {result['title']}")
+#     print(f"{i}. {result['title']}")
 
-    print(f"Job Levels: {result['job_levels']}")
+#     print(f"Job Levels: {result['job_levels']}")
 
-    print(f"Duration: {result['assessment_length']} mins")
+#     print(f"Duration: {result['assessment_length']} mins")
 
-    print(f"URL: {result['url']}")
+#     print(f"URL: {result['url']}")
 
-    print("-" * 50)
+#     print("-" * 50)
