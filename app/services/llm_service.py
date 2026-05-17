@@ -112,6 +112,12 @@ Your job:
 - maximum 2 short paragraphs,
 - never invent assessments,
 - only use the retrieved assessments provided below.
+- do not infer unsupported role fit from the assessment title alone.
+- only claim an assessment is role-specific when the title or description
+  explicitly mentions that role, skill, or job family.
+- if the retrieved assessments are broad or indirect matches, say they are
+  the closest SHL matches and avoid pretending they are tailored to the
+  exact role.
 
 IMPORTANT:
 The recommendation cards shown separately already contain:
@@ -136,7 +142,7 @@ Retrieved Assessments:
     response = client.chat.completions.create(
         model="llama-3.1-8b-instant",
 
-        temperature=0.5,
+        temperature=0.2,
 
         messages=[
             {

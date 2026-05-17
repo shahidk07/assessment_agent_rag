@@ -5,6 +5,7 @@ from app.services.llm_service import (
 )
 
 import pickle
+import re
 
 from app.services.retrieval_service import (
     retrieve_assessments
@@ -26,6 +27,188 @@ with open(
 # -----------------------------------
 # INTENT CLASSIFICATION
 # -----------------------------------
+
+GENERIC_REQUEST_WORDS = {
+    "a",
+    "an",
+    "and",
+    "any",
+    "assessment",
+    "assessments",
+    "candidate",
+    "candidates",
+    "employment",
+    "evaluation",
+    "evaluations",
+    "find",
+    "for",
+    "get",
+    "give",
+    "help",
+    "hire",
+    "hiring",
+    "i",
+    "me",
+    "need",
+    "please",
+    "pre",
+    "recruit",
+    "recruiting",
+    "recruitment",
+    "recommend",
+    "screen",
+    "screening",
+    "shl",
+    "some",
+    "suggest",
+    "test",
+    "tests",
+    "the",
+    "to",
+    "use",
+    "want",
+    "we",
+    "with",
+}
+
+ASSESSMENT_REQUEST_WORDS = {
+    "assessment",
+    "assessments",
+    "evaluation",
+    "evaluations",
+    "hire",
+    "hiring",
+    "recruit",
+    "recruiting",
+    "screen",
+    "screening",
+    "test",
+    "tests",
+}
+
+OFF_TOPIC_WORDS = {
+    "bootcamp",
+    "bootcamps",
+    "certificate",
+    "certificates",
+    "certification",
+    "certifications",
+    "course",
+    "courses",
+    "coursera",
+    "degree",
+    "degrees",
+    "edx",
+    "lesson",
+    "lessons",
+    "mooc",
+    "moocs",
+    "program",
+    "programs",
+    "training",
+    "tutorial",
+    "tutorials",
+    "udemy",
+}
+
+HARD_OFF_TOPIC_WORDS = {
+    "bootcamp",
+    "bootcamps",
+    "certificate",
+    "certificates",
+    "certification",
+    "certifications",
+    "course",
+    "courses",
+    "coursera",
+    "degree",
+    "degrees",
+    "edx",
+    "lesson",
+    "lessons",
+    "mooc",
+    "moocs",
+    "tutorial",
+    "tutorials",
+    "udemy",
+    "youtube",
+}
+
+ASSESSMENT_PRODUCT_WORDS = {
+    "assessment",
+    "assessments",
+    "evaluation",
+    "evaluations",
+    "screen",
+    "screening",
+    "shl",
+    "test",
+    "tests",
+}
+
+
+def tokenize_query(latest_query):
+
+    return re.findall(
+        r"[a-z0-9+#.]+",
+        latest_query.lower()
+    )
+
+
+def is_off_topic_request(latest_query):
+
+    tokens = tokenize_query(latest_query)
+
+    if not tokens:
+        return False
+
+    has_off_topic_word = any(
+        token in OFF_TOPIC_WORDS
+        for token in tokens
+    )
+
+    has_hard_off_topic_word = any(
+        token in HARD_OFF_TOPIC_WORDS
+        for token in tokens
+    )
+
+    has_assessment_product_word = any(
+        token in ASSESSMENT_PRODUCT_WORDS
+        for token in tokens
+    )
+
+    return (
+        has_hard_off_topic_word or
+        (
+            has_off_topic_word and
+            not has_assessment_product_word
+        )
+    )
+
+
+def is_vague_assessment_request(latest_query):
+
+    tokens = tokenize_query(latest_query)
+
+    if not tokens:
+        return True
+
+    has_assessment_request = any(
+        token in ASSESSMENT_REQUEST_WORDS
+        for token in tokens
+    )
+
+    if not has_assessment_request:
+        return False
+
+    context_tokens = [
+        token
+        for token in tokens
+        if token not in GENERIC_REQUEST_WORDS
+    ]
+
+    return len(context_tokens) == 0
+
 
 def classify_query(latest_query):
 
@@ -74,6 +257,16 @@ def classify_query(latest_query):
     # GREETING
     if query in greeting_keywords:
         return "greeting"
+
+    # OFF-TOPIC
+    # Non-SHL training/course requests should refuse before LLM fallback.
+    if is_off_topic_request(latest_query):
+        return "off-topic"
+
+    # VAGUE ASSESSMENT REQUEST
+    # Generic requests should ask for role/skill context before retrieval.
+    if is_vague_assessment_request(latest_query):
+        return "vague"
 
     # COMPARISON
     if any(word in query for word in comparison_keywords):
@@ -432,6 +625,11 @@ def process_query(messages):
         "broader personality" in previous_assistant
     )
 
+    clarification_active = (
+        "role, seniority level, or skills" in previous_assistant or
+        "what role are you hiring for" in previous_assistant
+    )
+
     if (
         fallback_active and
         latest_query_lower in [
@@ -474,8 +672,13 @@ def process_query(messages):
     # INTENT DETECTION
     # -----------------------------------
 
+    intent_query = latest_query
+
+    if clarification_active:
+        intent_query = conversation_context
+
     intent = classify_query(
-        latest_query
+        intent_query
     )
 
     print(f"Detected Intent: {intent}")
