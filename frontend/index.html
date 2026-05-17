@@ -18,37 +18,44 @@
 
 <body class="bg-gray-100 min-h-screen flex justify-center items-center p-5">
 
-    <div class="w-full max-w-4xl bg-white rounded-2xl shadow-2xl overflow-hidden">
+    <div class="w-full max-w-3xl sm:max-w-2xl bg-white rounded-2xl shadow-2xl overflow-hidden mx-auto">
 
         <!-- Header -->
         <div class="bg-black text-white p-5">
-            <h1 class="text-2xl font-bold">
-                SHL Assessment Assistant
-            </h1>
-
-            <p class="text-sm text-gray-300 mt-1">
-                AI-powered recruiter recommendation system
-            </p>
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div>
+                    <h1 class="text-2xl font-bold">
+                        SHL Assessment Assistant
+                    </h1>
+                    <p class="text-sm text-gray-300 mt-1">
+                        AI-powered recruiter recommendation system
+                    </p>
+                </div>
+                <div class="flex items-center gap-3">
+                    <a href="/health" class="text-xs text-gray-300 hover:text-white">Health check</a>
+                    <button id="new-chat-btn" class="bg-white text-black text-sm font-semibold px-4 py-2 rounded-xl hover:bg-gray-100 transition">
+                        New Chat
+                    </button>
+                </div>
+            </div>
+            <p class="text-xs text-gray-300 mt-4">Built by Shahid Khan</p>
         </div>
 
         <!-- Chat Box -->
-        <div id="chat-box" class="h-[600px] overflow-y-auto bg-gray-50 p-5 space-y-4">
+        <div id="chat-box" class="h-[420px] overflow-y-auto bg-gray-50 p-4 space-y-4">
 
             <!-- Initial Message -->
             <div class="flex justify-start">
-                <div class="bot-message">
-                    Hello! I can help you discover SHL assessments.
-                    What role are you hiring for?
-                </div>
+                <div class="bot-message">Hello! I can help you discover SHL assessments. What role are you hiring for?</div>
             </div>
 
         </div>
 
         <!-- Loading Indicator -->
-        <div id="loading-indicator" class="hidden flex justify-start p-5 bg-gray-50">
+        <div id="loading-indicator" class="hidden flex justify-start p-4 bg-gray-50" role="status" aria-live="polite">
             <div class="flex items-center gap-2">
                 <div class="loader"></div>
-                <span class="text-sm text-gray-600">Generating comparison...</span>
+                <span class="text-sm text-gray-600">Processing your request...</span>
             </div>
         </div>
 

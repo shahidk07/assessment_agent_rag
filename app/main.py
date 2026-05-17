@@ -29,10 +29,12 @@ app.mount(
 # SERVE FRONTEND
 @app.get("/")
 async def root():
+    return FileResponse("frontend/index.html")
 
-    return FileResponse(
-        "frontend/index.html"
-    )
+
+@app.get("/health")
+async def health():
+    return {"status": "ok", "detail": "Service is healthy"}
 
 
 # API ROUTES

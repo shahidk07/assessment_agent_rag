@@ -17,26 +17,30 @@ body {
   100% { transform: rotate(360deg); }
 }
 
+.user-message,
+.bot-message {
+  display: inline-block;
+  padding: 14px 18px;
+  border-radius: 16px;
+  line-height: 1.75;
+  font-size: 1.25rem;
+  max-width: 80%;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+  box-sizing: border-box;
+  text-align: left;
+  white-space: normal;
+}
+
 .user-message {
   background-color: black;
   color: white;
-  padding: 12px 16px;
-  border-radius: 16px;
-  max-width: 70%;
-  word-wrap: break-word;
-  overflow-wrap: break-word;
 }
 
 .bot-message {
   background-color: white;
   border: 1px solid #d1d5db;
   color: black;
-  padding: 12px 16px;
-  border-radius: 16px;
-  white-space: pre-wrap;
-  line-height: 1.7;
-  max-width: 70%;
-  overflow-wrap: anywhere;
 }
 
 .message-list {
@@ -138,7 +142,7 @@ body {
   .bot-message,
   .user-message {
     max-width: 90%;
-    font-size: 0.95rem;
+    font-size: 1.15rem;
   }
 
   .comparison-table-container {
@@ -164,6 +168,7 @@ body {
   .bot-message,
   .user-message {
     max-width: 95%;
+    font-size: 1.1rem;
   }
 
   .comparison-header,

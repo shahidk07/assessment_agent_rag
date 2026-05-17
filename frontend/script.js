@@ -81,6 +81,13 @@ function hideLoading() {
   $("#loading-indicator").addClass("hidden");
 }
 
+function resetChat() {
+  messages.length = 0;
+  $("#chat-box").empty();
+  hideLoading();
+  addBotMessage("Hello! I can help you discover SHL assessments.\nWhat role are you hiring for?");
+}
+
 function truncate(text, length = 180) {
   if (!text) return "";
   return text.length > length ? text.slice(0, length).trim() + "..." : text;
@@ -353,6 +360,10 @@ async function sendMessage() {
 
 $("#send-btn").click(function () {
   sendMessage();
+});
+
+$("#new-chat-btn").click(function () {
+  resetChat();
 });
 
 $("#user-input").keypress(function (e) {
