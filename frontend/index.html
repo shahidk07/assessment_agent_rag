@@ -16,33 +16,33 @@
     <link rel="stylesheet" href="/static/style.css">
 </head>
 
-<body class="bg-gray-100 min-h-screen flex justify-center items-center p-5">
+<body class="bg-gray-100 min-h-screen flex justify-center items-center p-2 sm:p-5">
 
-    <div class="w-full max-w-3xl sm:max-w-2xl bg-white rounded-2xl shadow-2xl overflow-hidden mx-auto">
+    <div class="w-full max-w-3xl sm:max-w-2xl bg-white rounded-2xl sm:rounded-2xl rounded-lg shadow-2xl overflow-hidden mx-auto h-screen sm:h-auto flex flex-col">
 
         <!-- Header -->
-        <div class="bg-black text-white p-5">
-            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                <div>
-                    <h1 class="text-2xl font-bold">
+        <div class="bg-black text-white p-3 sm:p-5 flex-shrink-0">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-4">
+                <div class="min-w-0">
+                    <h1 class="text-xl sm:text-2xl font-bold truncate">
                         SHL Assessment Assistant
                     </h1>
-                    <p class="text-sm text-gray-300 mt-1">
+                    <p class="text-xs sm:text-sm text-gray-300 mt-1 truncate">
                         AI-powered recruiter recommendation system
                     </p>
                 </div>
-                <div class="flex items-center gap-3">
-                    <a href="/health" class="text-xs text-gray-300 hover:text-white">Health check</a>
-                    <button id="new-chat-btn" class="bg-white text-black text-sm font-semibold px-4 py-2 rounded-xl hover:bg-gray-100 transition">
+                <div class="flex items-center gap-2 sm:gap-3 flex-shrink-0">
+                    <a href="/health" class="text-xs text-gray-300 hover:text-white whitespace-nowrap">Health</a>
+                    <button id="new-chat-btn" class="bg-white text-black text-xs sm:text-sm font-semibold px-2 sm:px-4 py-2 rounded-lg sm:rounded-xl hover:bg-gray-100 transition whitespace-nowrap h-9 sm:h-10">
                         New Chat
                     </button>
                 </div>
             </div>
-            <p class="text-xs text-gray-300 mt-4">Built by Shahid Khan</p>
+            <p class="text-xs text-gray-300 mt-2 sm:mt-4 truncate">Built by Shahid Khan</p>
         </div>
 
         <!-- Chat Box -->
-        <div id="chat-box" class="h-[420px] overflow-y-auto bg-gray-50 p-4 space-y-4">
+        <div id="chat-box" class="flex-1 overflow-y-auto bg-gray-50 p-3 sm:p-4 space-y-3 sm:space-y-4 min-h-0">
 
             <!-- Initial Message -->
             <div class="flex justify-start">
@@ -52,20 +52,20 @@
         </div>
 
         <!-- Loading Indicator -->
-        <div id="loading-indicator" class="hidden flex justify-start p-4 bg-gray-50" role="status" aria-live="polite">
+        <div id="loading-indicator" class="hidden flex justify-start p-3 sm:p-4 bg-gray-50 flex-shrink-0" role="status" aria-live="polite">
             <div class="flex items-center gap-2">
                 <div class="loader"></div>
-                <span class="text-sm text-gray-600">Processing your request...</span>
+                <span class="text-xs sm:text-sm text-gray-600">Processing your request...</span>
             </div>
         </div>
 
         <!-- Input Area -->
-        <div class="border-t p-4 flex gap-3 bg-white">
+        <div class="border-t p-2 sm:p-4 flex gap-2 sm:gap-3 bg-white flex-shrink-0">
 
-            <input type="text" id="user-input" placeholder="Type your recruiter query..."
-                class="flex-1 border border-gray-300 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-black" />
+            <input type="text" id="user-input" placeholder="Ask about assessments..." autocomplete="off"
+                class="flex-1 border border-gray-300 rounded-lg sm:rounded-xl px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base outline-none focus:ring-2 focus:ring-black" />
 
-            <button id="send-btn" class="bg-black text-white px-6 py-3 rounded-xl hover:bg-gray-800">
+            <button id="send-btn" class="bg-black text-white px-3 sm:px-6 py-2 sm:py-3 rounded-lg sm:rounded-xl hover:bg-gray-800 font-semibold text-sm sm:text-base whitespace-nowrap h-9 sm:h-12">
                 Send
             </button>
 

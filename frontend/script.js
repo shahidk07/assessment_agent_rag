@@ -216,15 +216,15 @@ function addRecommendations(recommendations) {
   recommendations.forEach((item) => {
     $("#chat-box").append(`
       <div class="recommendation-card">
-        <h3 class="text-lg font-bold mb-2">
+        <h3 class="text-base sm:text-lg font-bold mb-2">
           ${escapeHtml(item.name || "Assessment")}
         </h3>
         <div class="flex flex-wrap gap-2 mb-3">
           <span class="badge badge-duration">⏱️ ${item.duration || "N/A"} mins</span>
         </div>
-        <div class="flex flex-col gap-2">
-          ${item.url ? `<a href="${item.url}" target="_blank" rel="noopener" class="text-blue-600 hover:underline">Open Assessment</a>` : ""}
-          ${item.pdf_url ? `<a href="${item.pdf_url}" target="_blank" rel="noopener" class="text-green-600 hover:underline">Open PDF</a>` : ""}
+        <div class="flex flex-col gap-2 text-sm sm:text-base">
+          ${item.url ? `<a href="${item.url}" target="_blank" rel="noopener" class="text-blue-600 hover:underline break-words">Open Assessment</a>` : ""}
+          ${item.pdf_url ? `<a href="${item.pdf_url}" target="_blank" rel="noopener" class="text-green-600 hover:underline break-words">Open PDF</a>` : ""}
         </div>
       </div>
     `);
@@ -277,39 +277,39 @@ async function sendMessage() {
       if (bestFit.reason) {
         const bestItem = data.comparison_data[bestFit.index];
         comparisonHtml += `
-          <div class="bg-green-50 border border-green-300 rounded-lg p-4 mt-4" role="status" aria-label="Best fit recommendation">
-            <div class="flex items-start gap-2">
-              <span class="text-xl">💡</span>
-              <div>
-                <p class="font-bold text-green-800">Best Fit Recommendation</p>
-                <p class="text-green-700 text-sm">${escapeHtml(bestItem.title)} is ideal for <strong>${bestFit.reason}</strong></p>
+          <div class="bg-green-50 border border-green-300 rounded-lg p-3 sm:p-4 mt-3 sm:mt-4" role="status" aria-label="Best fit recommendation">
+            <div class="flex items-start gap-2 sm:gap-3">
+              <span class="text-lg sm:text-xl flex-shrink-0">💡</span>
+              <div class="min-w-0">
+                <p class="font-bold text-green-800 text-sm sm:text-base">Best Fit Recommendation</p>
+                <p class="text-green-700 text-xs sm:text-sm break-words">${escapeHtml(bestItem.title)} is ideal for <strong>${bestFit.reason}</strong></p>
               </div>
             </div>
           </div>
         `;
       }
 
-      comparisonHtml += `<div class="grid grid-cols-1 md:grid-cols-2 gap-4 w-full mt-4">`;
+      comparisonHtml += `<div class="grid grid-cols-1 gap-3 w-full mt-4">`;
 
       data.comparison_data.forEach((item, idx) => {
         const difficulty = inferDifficulty(item.description, item.assessment_length);
         const isBestFit = idx === bestFit.index && bestFit.reason;
 
         comparisonHtml += `
-          <div class="bg-white border ${isBestFit ? "border-green-400 border-2" : "border-gray-200"} rounded-3xl p-6 shadow-md">
-            <div class="flex items-start justify-between mb-4">
-              <h2 class="text-2xl font-bold text-black flex-1">${escapeHtml(item.title || "Assessment")}</h2>
-              ${isBestFit ? '<span class="badge badge-best-fit">✓ Best</span>' : ""}
+          <div class="bg-white border ${isBestFit ? "border-green-400 border-2" : "border-gray-200"} rounded-2xl sm:rounded-3xl p-3 sm:p-6 shadow-md">
+            <div class="flex items-start justify-between mb-3 sm:mb-4">
+              <h2 class="text-lg sm:text-2xl font-bold text-black flex-1 line-clamp-2">${escapeHtml(item.title || "Assessment")}</h2>
+              ${isBestFit ? '<span class="badge badge-best-fit text-xs sm:text-sm">✓ Best</span>' : ""}
             </div>
 
-            <div class="space-y-3 text-gray-700 text-sm">
+            <div class="space-y-2 sm:space-y-3 text-gray-700 text-xs sm:text-sm">
               <div>
                 <span class="font-semibold">Job Levels:</span>
-                ${escapeHtml(item.job_levels || "N/A")}
+                <div class="text-gray-600">${escapeHtml(item.job_levels || "N/A")}</div>
               </div>
               <div>
                 <span class="font-semibold">Languages:</span>
-                ${escapeHtml(item.languages || "N/A")}
+                <div class="text-gray-600">${escapeHtml(item.languages || "N/A")}</div>
               </div>
               <div>
                 <span class="font-semibold">Duration:</span>
@@ -321,20 +321,20 @@ async function sendMessage() {
               </div>
               <div>
                 <span class="font-semibold">Overview:</span>
-                ${truncate(item.description, 220)}
+                <div class="text-gray-600 line-clamp-3">${truncate(item.description, 180)}</div>
               </div>
             </div>
 
-            <div class="flex flex-col gap-3 mt-6">
+            <div class="flex flex-col gap-2 sm:gap-3 mt-4 sm:mt-6">
               ${item.url ? `
                 <a href="${item.url}" target="_blank" rel="noopener" aria-label="Open ${escapeHtml(item.title)} assessment" 
-                  class="bg-black text-white text-center py-2 rounded-xl hover:opacity-90 transition">
+                  class="bg-black text-white text-center py-2 px-3 text-sm sm:text-base rounded-lg sm:rounded-xl hover:opacity-90 transition font-semibold">
                   Open Assessment
                 </a>
               ` : ""}
               ${item.pdf_url ? `
                 <a href="${item.pdf_url}" target="_blank" rel="noopener" aria-label="Open ${escapeHtml(item.title)} PDF"
-                  class="border border-black text-black text-center py-2 rounded-xl hover:bg-gray-100 transition">
+                  class="border border-black text-black text-center py-2 px-3 text-sm sm:text-base rounded-lg sm:rounded-xl hover:bg-gray-100 transition font-semibold">
                   Open PDF
                 </a>
               ` : ""}
