@@ -1,5 +1,7 @@
 # Approach Document — SHL Conversational Assessment Recommender
 
+**Name:** Shahid Khan  
+**GitHub:** https://github.com/shahidk07/assessment_agent_rag
 ## Overview
 
 The goal of this project was to build a conversational AI agent capable of recommending SHL assessments through natural dialogue instead of traditional keyword-based search.
